@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator - Staff Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .container {
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 8px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        input::placeholder {
+            color: rgba(255,255,255,0.7);
+        }
+        
+        button {
+            background: linear-gradient(135deg, #4CAF50, #388E3C);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        
+        .qr-output {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 10px;
+        }
+        
+        .qr-code-container {
+            display: inline-block;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px;
+        }
+        
+        .label-info {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            text-align: left;
+        }
+        
+        .quick-demo {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .demo-button {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            padding: 10px;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            border: none;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📦 QR Code Generator</h1>
+        <p style="text-align: center; margin-bottom: 30px;">Generate QR codes for packages and slots</p>
+        
+        <div class="form-group">
+            <label for="qrType">QR Code Type:</label>
+            <select id="qrType" onchange="updateForm()">
+                <option value="package">Package Label (for delivery items)</option>
+                <option value="slot">Slot Label (for physical shelves)</option>
+            </select>
+        </div>
+        
+        <div id="packageForm">
+            <div class="form-group">
+                <label for="orderId">Order ID:</label>
+                <input type="text" id="orderId" placeholder="Enter order ID (e.g., ORD001)" />
+            </div>
+            
+            <div class="form-group">
+                <label for="slotId">Assigned Slot:</label>
+                <select id="slotId">
+                    <option value="1">Slot 1</option>
+                    <option value="2">Slot 2</option>
+                    <option value="3">Slot 3</option>
+                    <option value="4">Slot 4</option>
+                    <option value="5">Slot 5</option>
+                    <option value="6">Slot 6</option>
+                    <option value="7">Slot 7</option>
+                    <option value="8">Slot 8</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="riderId">Assigned Rider (optional):</label>
+                <input type="text" id="riderId" placeholder="Rider ID (optional)" />
+            </div>
+        </div>
+        
+        <div id="slotForm" style="display: none;">
+            <div class="form-group">
+                <label for="physicalSlotId">Slot ID:</label>
+                <input type="text" id="physicalSlotId" placeholder="Enter slot ID (e.g., SLOT001)" />
+            </div>
+            
+            <div class="form-group">
+                <label for="siteId">Site ID:</label>
+                <input type="text" id="siteId" placeholder="Enter site ID (e.g., SITE001)" />
+            </div>
+            
+            <div class="form-group">
+                <label for="shelfId">Shelf ID:</label>
+                <input type="text" id="shelfId" placeholder="Enter shelf ID (e.g., SHELF001)" />
+            </div>
+        </div>
+        
+        <button onclick="generateQRCode()">🎯 Generate QR Code</button>
+        <button onclick="clearForm()">🔄 Clear Form</button>
+        
+        <div class="quick-demo">
+            <h3 style="grid-column: 1 / -1; text-align: center; margin: 20px 0 10px 0;">Quick Demo Examples:</h3>
+            <button class="demo-button" onclick="loadDemoPackage('ORD001', '1')">📦 Package for Slot 1</button>
+            <button class="demo-button" onclick="loadDemoPackage('ORD002', '3')">📦 Package for Slot 3</button>
+            <button class="demo-button" onclick="loadDemoPackage('ORD003', '5')">📦 Package for Slot 5</button>
+            <button class="demo-button" onclick="loadDemoSlot('SLOT001')">🗂️ Physical Slot Label</button>
+        </div>
+        
+        <div id="qrOutput" class="qr-output" style="display: none;">
+            <h3>Generated QR Code</h3>
+            <div id="qrContainer"></div>
+            <div id="labelInfo" class="label-info"></div>
+            <button onclick="downloadQR()">💾 Download QR Code</button>
+            <button onclick="printLabel()">🖨️ Print Label</button>
+        </div>
+    </div>
+
+    <!-- QR Code Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    
+    <script>
+        let currentQRData = null;
+        
+        function updateForm() {
+            const qrType = document.getElementById('qrType').value;
+            const packageForm = document.getElementById('packageForm');
+            const slotForm = document.getElementById('slotForm');
+            
+            if (qrType === 'package') {
+                packageForm.style.display = 'block';
+                slotForm.style.display = 'none';
+            } else {
+                packageForm.style.display = 'none';
+                slotForm.style.display = 'block';
+            }
+        }
+        
+        function generateQRCode() {
+            const qrType = document.getElementById('qrType').value;
+            
+            if (qrType === 'package') {
+                generatePackageQR();
+            } else {
+                generateSlotQR();
+            }
+        }
+        
+        function generatePackageQR() {
+            const orderId = document.getElementById('orderId').value;
+            const slotId = document.getElementById('slotId').value;
+            const riderId = document.getElementById('riderId').value;
+            
+            if (!orderId) {
+                alert('Please enter an Order ID');
+                return;
+            }
+            
+            const trackingNumber = `TRK${orderId.slice(-6).toUpperCase().padStart(6, '0')}`;
+            
+            const qrData = {
+                type: 'PACKAGE',
+                orderId: orderId,
+                slotId: slotId,
+                riderId: riderId || null,
+                trackingNumber: trackingNumber,
+                timestamp: new Date().toISOString(),
+                hash: generateHash(orderId, slotId)
+            };
+            
+            currentQRData = qrData;
+            const qrString = JSON.stringify(qrData);
+            
+            QRCode.toDataURL(qrString, { 
+                width: 256,
+                margin: 2,
+                color: {
+                    dark: '#000000',
+                    light: '#FFFFFF'
+                }
+            }, function (err, url) {
+                if (err) {
+                    alert('Error generating QR code');
+                    return;
+                }
+                
+                displayQRCode(url, qrData);
+            });
+        }
+        
+        function generateSlotQR() {
+            const slotId = document.getElementById('physicalSlotId').value;
+            const siteId = document.getElementById('siteId').value;
+            const shelfId = document.getElementById('shelfId').value;
+            
+            if (!slotId || !siteId || !shelfId) {
+                alert('Please fill in all slot information');
+                return;
+            }
+            
+            const qrData = {
+                type: 'SLOT',
+                slotId: slotId,
+                siteId: siteId,
+                shelfId: shelfId,
+                location: `Site:${siteId} Shelf:${shelfId} Slot:${slotId}`
+            };
+            
+            currentQRData = qrData;
+            const qrString = JSON.stringify(qrData);
+            
+            QRCode.toDataURL(qrString, { 
+                width: 256,
+                margin: 2,
+                color: {
+                    dark: '#000000',
+                    light: '#FFFFFF'
+                }
+            }, function (err, url) {
+                if (err) {
+                    alert('Error generating QR code');
+                    return;
+                }
+                
+                displayQRCode(url, qrData);
+            });
+        }
+        
+        function displayQRCode(qrUrl, qrData) {
+            const output = document.getElementById('qrOutput');
+            const container = document.getElementById('qrContainer');
+            const labelInfo = document.getElementById('labelInfo');
+            
+            container.innerHTML = `
+                <div class="qr-code-container">
+                    <img src="${qrUrl}" alt="QR Code" />
+                </div>
+            `;
+            
+            let infoHtml = '';
+            if (qrData.type === 'PACKAGE') {
+                infoHtml = `
+                    <h4>📦 Package Label Information</h4>
+                    <p><strong>Tracking Number:</strong> ${qrData.trackingNumber}</p>
+                    <p><strong>Order ID:</strong> ${qrData.orderId}</p>
+                    <p><strong>Assigned Slot:</strong> ${qrData.slotId}</p>
+                    <p><strong>Assigned Rider:</strong> ${qrData.riderId || 'Any rider'}</p>
+                    <p><strong>Generated:</strong> ${new Date(qrData.timestamp).toLocaleString()}</p>
+                    <hr>
+                    <p><strong>Instructions:</strong></p>
+                    <ol>
+                        <li>Print this QR code label</li>
+                        <li>Attach to package</li>
+                        <li>Place package in Slot ${qrData.slotId}</li>
+                        <li>Rider scans QR code to retrieve package</li>
+                    </ol>
+                `;
+            } else {
+                infoHtml = `
+                    <h4>🗂️ Slot Label Information</h4>
+                    <p><strong>Slot ID:</strong> ${qrData.slotId}</p>
+                    <p><strong>Site:</strong> ${qrData.siteId}</p>
+                    <p><strong>Shelf:</strong> ${qrData.shelfId}</p>
+                    <p><strong>Location:</strong> ${qrData.location}</p>
+                    <hr>
+                    <p><strong>Instructions:</strong></p>
+                    <ol>
+                        <li>Print this QR code label</li>
+                        <li>Laminate for durability</li>
+                        <li>Attach to physical slot ${qrData.slotId}</li>
+                        <li>Used for maintenance and verification</li>
+                    </ol>
+                `;
+            }
+            
+            labelInfo.innerHTML = infoHtml;
+            output.style.display = 'block';
+            
+            // Scroll to QR code
+            output.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function generateHash(orderId, slotId) {
+            // Simple hash for demo (in production, use proper crypto)
+            const data = `${orderId}:${slotId}:DELIVERY_SECURITY`;
+            let hash = 0;
+            for (let i = 0; i < data.length; i++) {
+                const char = data.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // Convert to 32-bit integer
+            }
+            return Math.abs(hash).toString(16).substring(0, 16);
+        }
+        
+        function clearForm() {
+            document.getElementById('orderId').value = '';
+            document.getElementById('riderId').value = '';
+            document.getElementById('physicalSlotId').value = '';
+            document.getElementById('siteId').value = '';
+            document.getElementById('shelfId').value = '';
+            document.getElementById('qrOutput').style.display = 'none';
+        }
+        
+        function loadDemoPackage(orderId, slotId) {
+            document.getElementById('qrType').value = 'package';
+            updateForm();
+            document.getElementById('orderId').value = orderId;
+            document.getElementById('slotId').value = slotId;
+            generateQRCode();
+        }
+        
+        function loadDemoSlot(slotId) {
+            document.getElementById('qrType').value = 'slot';
+            updateForm();
+            document.getElementById('physicalSlotId').value = slotId;
+            document.getElementById('siteId').value = 'SITE001';
+            document.getElementById('shelfId').value = 'SHELF001';
+            generateQRCode();
+        }
+        
+        function downloadQR() {
+            if (!currentQRData) return;
+            
+            const canvas = document.createElement('canvas');
+            const img = document.querySelector('#qrContainer img');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            
+            const link = document.createElement('a');
+            link.download = `QR-${currentQRData.type}-${currentQRData.orderId || currentQRData.slotId}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+        
+        function printLabel() {
+            if (!currentQRData) return;
+            
+            const printWindow = window.open('', '_blank');
+            const qrImg = document.querySelector('#qrContainer img');
+            const labelInfo = document.getElementById('labelInfo').innerHTML;
+            
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>QR Code Label</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
+                        img { max-width: 200px; }
+                        .info { text-align: left; max-width: 400px; margin: 0 auto; }
+                    </style>
+                </head>
+                <body>
+                    <h2>Delivery Security System</h2>
+                    <img src="${qrImg.src}" alt="QR Code" />
+                    <div class="info">${labelInfo}</div>
+                </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            printWindow.print();
+        }
+    </script>
+</body>
+</html>

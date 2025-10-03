@@ -1,0 +1,40 @@
+{
+  "name": "delivery-security-system",
+  "version": "1.0.0",
+  "description": "Complete delivery parcel security system with smart shelf controllers, mobile apps, and backend services",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "dashboard",
+    "mobile"
+  ],
+  "scripts": {
+    "install:all": "pnpm install && pnpm run install:backend && pnpm run install:dashboard && pnpm run install:mobile",
+    "install:backend": "cd backend && pnpm install",
+    "install:dashboard": "cd dashboard && pnpm install",
+    "install:mobile": "cd mobile && pnpm install",
+    "dev": "concurrently \"pnpm run dev:backend\" \"pnpm run dev:dashboard\"",
+    "dev:standalone": "concurrently \"pnpm run dev:backend:standalone\" \"pnpm run dev:dashboard\"",
+    "dev:backend": "cd backend && pnpm run dev",
+    "dev:backend:standalone": "cd backend && pnpm run dev:standalone",
+    "dev:dashboard": "cd dashboard && pnpm run dev",
+    "build": "pnpm run build:backend && pnpm run build:dashboard",
+    "build:backend": "cd backend && pnpm run build",
+    "build:dashboard": "cd dashboard && pnpm run build",
+    "test": "pnpm run test:backend && pnpm run test:dashboard",
+    "test:backend": "cd backend && pnpm test",
+    "test:dashboard": "cd dashboard && pnpm test",
+    "lint": "pnpm run lint:backend && pnpm run lint:dashboard",
+    "lint:backend": "cd backend && pnpm run lint",
+    "lint:dashboard": "cd dashboard && pnpm run lint"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "author": "Delivery Security System Team",
+  "license": "MIT"
+}
